@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart WI Builder — GIC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <h1>Smart WI Builder</h1>
+    <span>shop-floor work instructions</span>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" id="tabBuilder" onclick="switchView('builder')">✦ New WI</button>
+    <button class="tab-btn" id="tabHistory" onclick="switchView('history')">History</button>
+  </div>
+</div>
+
+<main>
+
+  <!-- ======= BUILDER VIEW ======= -->
+  <section id="view-builder">
+
+    <!-- 01: Company / Doc Details -->
+    <div class="section-label"><span class="step-num">01</span> Document Details</div>
+    <div class="card">
+      <div class="field-row">
+        <div class="field" style="flex:2 1 220px;">
+          <label for="inCompany">Company Name</label>
+          <input id="inCompany" type="text" placeholder="e.g. General Industrial Controls Pvt. Ltd.">
+        </div>
+        <div class="field">
+          <label for="inProduct">Product / Stage</label>
+          <input id="inProduct" type="text" placeholder="e.g. 32i/5 Controller">
+        </div>
+        <div class="field">
+          <label for="inDocNo">Document Number</label>
+          <input id="inDocNo" type="text" placeholder="DRAWP0200">
+        </div>
+        <div class="field">
+          <label for="inRev">Rev</label>
+          <input id="inRev" type="text" placeholder="00">
+        </div>
+        <div class="field">
+          <label for="inDate">Date</label>
+          <input id="inDate" type="date">
+        </div>
+      </div>
+    </div>
+
+    <!-- 02: Page 1 — Document Review Table (Editable Header) -->
+    <div class="section-label"><span class="step-num">02</span> Page 1 — Document Review &amp; Header</div>
+    <div class="card">
+      <p class="section-hint">This builds the first page: company header, document review sign-off table, document path, and revision history.</p>
+
+      <div class="sub-section-title">Document Review Table</div>
+      <div id="reviewRows">
+        <!-- rows added by JS -->
+      </div>
+      <button class="btn btn-ghost" style="margin-top:8px;font-size:13px;" onclick="addReviewRow()">+ Add Row</button>
+
+      <div class="sub-section-title" style="margin-top:18px;">Document Path</div>
+      <div class="field">
+        <label>Full Document Path / Location</label>
+        <input id="inDocPath" type="text" placeholder="e.g. Y:\GIC WI\Documentation\32i5 Potential WI">
+      </div>
+
+      <div class="sub-section-title" style="margin-top:18px;">Revision History</div>
+      <div id="revHistoryRows"></div>
+      <button class="btn btn-ghost" style="margin-top:8px;font-size:13px;" onclick="addRevHistoryRow()">+ Add Revision Row</button>
+    </div>
+
+    <!-- 03: Page 2 — Applicable CAT/PNs + Variant Chart -->
+    <div class="section-label"><span class="step-num">03</span> Page 2 — Applicable Parts &amp; Variant Chart</div>
+    <div class="card">
+      <p class="section-hint">List the applicable catalogue / part numbers and the variant chart for this work instruction.</p>
+
+      <div class="sub-section-title">Applicable CAT / Part Numbers</div>
+      <div id="catPnRows"></div>
+      <button class="btn btn-ghost" style="margin-top:8px;font-size:13px;" onclick="addCatPnRow()">+ Add Part Row</button>
+
+      <div class="sub-section-title" style="margin-top:20px;">Variant Chart</div>
+      <p class="section-hint">Add columns for variant attributes (e.g. MAC address, PTR, PCB Assembly, etc.) and fill in each variant row.</p>
+      <div id="variantChartWrap">
+        <div id="variantHeaderRow" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;"></div>
+        <div id="variantDataRows"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+        <button class="btn btn-ghost" style="font-size:13px;" onclick="addVariantColumn()">+ Add Column</button>
+        <button class="btn btn-ghost" style="font-size:13px;" onclick="addVariantRow()">+ Add Variant Row</button>
+      </div>
+    </div>
+
+    <!-- 04: Page 3 — Process Flow / User Legend -->
+    <div class="section-label"><span class="step-num">04</span> Page 3 — Process Flow Chart</div>
+    <div class="card">
+      <p class="section-hint">Describe the process flow steps. These will be rendered as a flow diagram on Page 3. Add each flow node below.</p>
+      <div class="sub-section-title">User Legend</div>
+      <div class="field" style="max-width:360px;">
+        <label>Legend / Role Label</label>
+        <input id="inLegend" type="text" placeholder="e.g. Base Assembly">
+      </div>
+      <div class="sub-section-title" style="margin-top:14px;">Flow Steps (nodes)</div>
+      <div id="flowStepsWrap"></div>
+      <button class="btn btn-ghost" style="margin-top:8px;font-size:13px;" onclick="addFlowStep()">+ Add Flow Step</button>
+    </div>
+
+    <!-- 05: Page 4+ — Choose Process Template & Fill Steps -->
+    <div class="section-label"><span class="step-num">05</span> Page 4 onwards — Choose Process Template</div>
+    <div class="card">
+      <p class="section-hint">Select one of the 10 process templates. Each template generates landscape-oriented step pages (Page 4 onwards) with images and descriptions.</p>
+      <div class="template-grid" id="templateGrid"></div>
+    </div>
+
+    <div class="section-label" id="step6Label" style="display:none;"><span class="step-num">06</span> Fill Process Steps</div>
+    <div id="builderSteps"></div>
+
+    <div class="actions-row" id="actionsRow" style="display:none;">
+      <button class="btn btn-ghost" onclick="resetBuilder()">↺ Clear All</button>
+      <button class="btn btn-primary" onclick="generateDocument()">Generate Full WI Preview →</button>
+    </div>
+  </section>
+
+  <!-- ======= PREVIEW VIEW ======= -->
+  <section id="view-preview" class="hidden">
+    <div class="preview-toolbar">
+      <button class="btn btn-ghost" onclick="switchView('builder')">← Back to Edit</button>
+      <div class="preview-title" id="previewTitle"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="exportPDF()">⬇ Download PDF</button>
+        <button class="btn btn-ghost" onclick="exportWord()">⬇ Download Word</button>
+      </div>
+    </div>
+    <div id="previewPages"></div>
+  </section>
+
+  <!-- ======= HISTORY VIEW ======= -->
+  <section id="view-history" class="hidden">
+    <div class="section-label"><span class="step-num">✦</span> Saved Work Instructions</div>
+    <div class="card" style="padding:0; overflow:hidden;">
+      <div id="historyList"></div>
+    </div>
+  </section>
+
+</main>
+
+<div id="toast"></div>
+<div id="modalBg" class="hidden">
+  <div id="modalBox">
+    <p id="modalMsg"></p>
+    <div class="modal-row">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-rust" id="modalConfirmBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
