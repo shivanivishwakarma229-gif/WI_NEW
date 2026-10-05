@@ -20,8 +20,6 @@ The project is designed to reduce manual documentation effort and produce clear,
 
 ## Technologies Used
 
-* Python
-* FastAPI
 * HTML
 * CSS
 * JavaScript
